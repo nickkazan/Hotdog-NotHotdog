@@ -31,9 +31,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // Create a session configuration
+        // Create a session configuration that looks for objects matching those in "HotdogObjects"
         let configuration = ARWorldTrackingConfiguration();
-        configuration.detectionObjects = ARReferenceObject.referenceObjects(inGroupNamed: "Hotdogs", bundle: Bundle.main)!;
+        configuration.detectionObjects = ARReferenceObject.referenceObjects(inGroupNamed: "HotdogObjects", bundle: Bundle.main)!;
 
         // Run the view's session
         sceneView.session.run(configuration);
@@ -51,18 +51,18 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let node = SCNNode();
         
         if let objectAnchor = anchor as? ARObjectAnchor {
-            let plane = SCNPlane(width: CGFloat(objectAnchor.referenceObject.extent.x), height: CGFloat(objectAnchor.referenceObject.extent.y))
-            plane.cornerRadius = plane.width / 8;
-            let spriteKitScene = SKScene(fileNamed: "ProductInfo.sks");
+            print("-------Hotdog Detected-------")
             
-            plane.firstMaterial?.diffuse.contents = spriteKitScene;
-            plane.firstMaterial?.isDoubleSided = true;
-            plane.firstMaterial?.diffuse.contentsTransform = SCNMatrix4Translate(SCNMatrix4MakeScale(1, -1, 1), 0, 1, 0);
+            //Create the text to display the Confirmation and set its position
+            let text = SCNText(string: "Hotdog", extrusionDepth: 1);
+            text.font = UIFont.systemFont(ofSize: 8);
+            text.firstMaterial?.diffuse.contents = UIColor.green;
             
-            let planeNode = SCNNode(geometry: plane);
-            planeNode.position = SCNVector3Make(objectAnchor.referenceObject.center.x, objectAnchor.referenceObject.center.y + 0.20, objectAnchor.referenceObject.center.z)
-            
-            node.addChildNode(planeNode);
+            let textNode = SCNNode(geometry: text)
+            //Current ARObject was scanned poorly, so I manually adjusted the center but 0.07 and 0.05. Eventually will be fixed so center is accurate
+            textNode.position = SCNVector3Make(objectAnchor.referenceObject.center.x - 0.07, objectAnchor.referenceObject.center.y + 0.05, objectAnchor.referenceObject.center.z);
+            textNode.scale = SCNVector3Make(0.005, 0.005, 0.005)
+            node.addChildNode(textNode);
         }
         return node;
     }
